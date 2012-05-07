@@ -11,6 +11,16 @@ flatten = (array) ->
     acc.concat(if Array.isArray(elem) then flatten(elem) else [elem])
   , []
 
+# rejoin: rejoin components of a string separated with underscore in camel case
+# if the first letter is in upper case:
+# rejoin("Abc_view") ==> "AbcView"
+# rejoin("abc_view") ==> "abc_view"
+rejoin = (prejoined) ->
+    if /^a-z/.test prejoined
+        return prejoined
+    components = prejoined.split '_'
+    return (i.charAt(0).toUpperCase() + i.slice(1) for i in components).join('')
+
 categories =
   backbone:
     controllerTest: 'javascripts'
@@ -31,16 +41,16 @@ generators = (config, generator) ->
     # scaffold: controller, model, view
     controllerTest: (name) ->
       [sysPath.join(
-        config.paths.test, 'controllers', "#{name}_controller_test"
+        config.paths.test, 'controllers', rejoin("#{name}_controller_test")
       )]
 
     controller: (name) ->
       [sysPath.join(
-        config.paths.app, 'controllers', "#{name}_controller"
+        config.paths.app, 'controllers', rejoin("#{name}_controller")
       )].concat(generator('controllerTest', name))
 
     modelTest: (name) ->
-      [sysPath.join(config.paths.test, 'models', "#{name}_test")]
+      [sysPath.join(config.paths.test, 'models', rejoin("#{name}_test"))]
 
     model: (name) ->
       [sysPath.join(config.paths.app, 'models', "#{name}")].concat(
@@ -54,10 +64,10 @@ generators = (config, generator) ->
       [sysPath.join(config.paths.app, 'views', 'styles', "#{name}")]
 
     viewTest: (name) ->
-      [sysPath.join(config.paths.test, 'views', "#{name}_view_test")]
+      [sysPath.join(config.paths.test, 'views', rejoin("#{name}_view_test"))]
 
     view: (name) ->
-      [sysPath.join(config.paths.app, 'views', "#{name}_view")].concat(
+      [sysPath.join(config.paths.app, 'views', rejoin("#{name}_view"))].concat(
         generator('viewTest', name),
         generator('template', name),
         generator('style', name)
